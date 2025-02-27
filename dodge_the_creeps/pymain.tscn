@@ -1,0 +1,119 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddwi5op14ihr6"]
+
+[ext_resource type="Script" path="res://python_scripts/main.py" id="1_hu1yv"]
+[ext_resource type="PackedScene" uid="uid://n07fqqjeexos" path="res://pyplayer.tscn" id="5_l7f53"]
+[ext_resource type="AudioStream" uid="uid://q2pf4fr8d0ks" path="res://art/House In a Forest Loop.ogg" id="5_sj8fo"]
+[ext_resource type="PackedScene" uid="uid://dmvqasyq5lfvr" path="res://pyhud.tscn" id="5_spghd"]
+[ext_resource type="AudioStream" uid="uid://dw26fpygeag8o" path="res://art/gameover.wav" id="6_1ygxy"]
+
+[sub_resource type="Curve2D" id="1"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 480, 0, 0, 0, 0, 0, 480, 720, 0, 0, 0, 0, 0, 720, 0, 0, 0, 0, 0, 0)
+}
+point_count = 5
+
+[node name="Main" type="Node"]
+script = ExtResource("1_hu1yv")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.219608, 0.372549, 0.380392, 1)
+
+[node name="MobTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="ScoreTimer" type="Timer" parent="."]
+
+[node name="StartTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="StartPosition" type="Marker2D" parent="."]
+position = Vector2(240, 450)
+
+[node name="MobPath" type="Path2D" parent="."]
+curve = SubResource("1")
+
+[node name="MobSpawnLocation" type="PathFollow2D" parent="MobPath"]
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_sj8fo")
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_1ygxy")
+
+[node name="Player" parent="." instance=ExtResource("5_l7f53")]
+_import_path = NodePath("")
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 0
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+light_mask = 1
+visibility_layer = 1
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+use_parent_material = false
+position = Vector2(-81, -21)
+rotation = 0.0
+scale = Vector2(1, 1)
+skew = 0.0
+disable_mode = 0
+collision_layer = 1
+collision_mask = 1
+collision_priority = 1.0
+input_pickable = true
+monitoring = true
+monitorable = true
+priority = 0
+gravity_space_override = 0
+gravity_point = false
+gravity_point_unit_distance = 0.0
+gravity_point_center = Vector2(0, 1)
+gravity_direction = Vector2(0, 1)
+gravity = 980.0
+linear_damp_space_override = 0
+linear_damp = 0.1
+angular_damp_space_override = 0
+angular_damp = 1.0
+audio_bus_override = false
+audio_bus_name = &"Master"
+
+[node name="HUD" parent="." instance=ExtResource("5_spghd")]
+_import_path = NodePath("")
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 0
+auto_translate_mode = 0
+editor_description = ""
+layer = 1
+visible = true
+offset = Vector2(0, 0)
+rotation = 0.0
+scale = Vector2(1, 1)
+transform = Transform2D(1, 0, 0, 1, 0, 0)
+follow_viewport_enabled = false
+follow_viewport_scale = 1.0
+
+[connection signal="timeout" from="MobTimer" to="." method="_on_MobTimer_timeout"]
+[connection signal="timeout" from="ScoreTimer" to="." method="_on_ScoreTimer_timeout"]
+[connection signal="timeout" from="StartTimer" to="." method="on_StartTimer_timeout"]
+[connection signal="hit" from="Player" to="." method="game_over"]
+[connection signal="start_game" from="HUD" to="." method="new_game"]
