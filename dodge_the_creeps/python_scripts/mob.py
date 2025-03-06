@@ -7,7 +7,7 @@ from py4godot.utils.print_tools import print_error
 @gdclass
 class mob(RigidBody2D):
 	def _ready(self):
-		sprite:AnimatedSprite2D = AnimatedSprite2D.cast(self.get_node("AnimatedSprite2D"))
+		sprite:AnimatedSprite2D = self.get_node("AnimatedSprite2D")
 		sprite.play()
 		mob_types:Array = Array.new8(sprite.sprite_frames.get_animation_names())
 		sprite.animation = mob_types.pick_random()
