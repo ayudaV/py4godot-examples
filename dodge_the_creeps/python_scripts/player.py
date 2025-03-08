@@ -1,12 +1,9 @@
 from py4godot import signal
-from py4godot.classes.AnimatedSprite2D import AnimatedSprite2D
+from py4godot.classes import gdclass
 from py4godot.classes.Area2D import Area2D
 from py4godot.classes.Input import Input
-from py4godot.classes.CollisionShape2D import CollisionShape2D
-from py4godot.classes.GPUParticles2D import GPUParticles2D
+from py4godot.classes.core import Vector2, NodePath
 
-from py4godot.classes.core import Signal, Vector2, NodePath
-from py4godot.classes import gdclass
 
 @gdclass
 class player(Area2D):

@@ -1,12 +1,8 @@
 from py4godot import signal
-from py4godot.classes.CanvasLayer import CanvasLayer
-from py4godot.classes.Timer import Timer
-from py4godot.classes.Label import Label
-from py4godot.classes.Button import Button
-from py4godot.classes.SceneTree import SceneTree
 from py4godot.classes import gdclass
+from py4godot.classes.CanvasLayer import CanvasLayer
 from py4godot.utils.utils import get_tree
-from py4godot.utils.print_tools import print_error
+
 
 @gdclass
 class hud(CanvasLayer):

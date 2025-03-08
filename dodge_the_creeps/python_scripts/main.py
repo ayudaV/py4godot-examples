@@ -1,22 +1,11 @@
 import math
+
 import random
 from py4godot.classes import gdclass
-from py4godot.classes.AudioStreamPlayer import AudioStreamPlayer
-from py4godot.classes.CanvasLayer import CanvasLayer
-from py4godot.classes.Marker2D import Marker2D
 from py4godot.classes.Node import Node
-from py4godot.classes.Node2D import Node2D
-from py4godot.classes.PackedScene import PackedScene
-from py4godot.classes.PathFollow2D import PathFollow2D
 from py4godot.classes.ResourceLoader import ResourceLoader
-from py4godot.classes.RigidBody2D import RigidBody2D
-from py4godot.classes.Timer import Timer
 from py4godot.classes.core import Vector2
 from py4godot.utils.utils import get_tree
-
-from python_scripts.hud import hud
-
-mob_scene_path: str = "res://pymob.tscn"
 
 
 def load_mob_scene(path):
@@ -25,6 +14,8 @@ def load_mob_scene(path):
 
 @gdclass
 class main(Node):
+	mob_scene_path: str = "res://pymob.tscn"
+
 	def _ready(self):
 		self.score = 0
 		self._score_timer = self.get_node("ScoreTimer")
@@ -34,7 +25,7 @@ class main(Node):
 		self._death_sound = self.get_node("DeathSound")
 		self._hud = self.get_node("HUD")
 		self._start_position = self.get_node("StartPosition")
-		self._mob_scene = load_mob_scene(mob_scene_path)
+		self._mob_scene = load_mob_scene(self.mob_scene_path)
 		self._player = self.get_node("Player").get_pyscript()
 		self.create_mob()
 
