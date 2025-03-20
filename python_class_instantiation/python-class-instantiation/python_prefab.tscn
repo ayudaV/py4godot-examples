@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bwmtq87emox5o"]
+
+[ext_resource type="Script" path="res://python_prefab.py" id="1_f8rg4"]
+
+[node name="Root" type="Node3D"]
+script = -4778865112163287040
+
+[node name="PythonNode" type="Node3D" parent="."]
+script = ExtResource("1_f8rg4")
