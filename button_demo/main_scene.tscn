@@ -1,8 +1,15 @@
-[gd_scene format=3 uid="uid://csj3pgjbboiv1"]
+[gd_scene load_steps=2 format=3 uid="uid://csj3pgjbboiv1"]
+
+[ext_resource type="Script" path="res://button.py" id="1_0f027"]
 
 [node name="Root" type="Node3D"]
 
 [node name="Button" type="Button" parent="."]
-offset_right = 488.0
-offset_bottom = 214.0
-text = "This is aa button"
+offset_left = 333.0
+offset_top = 224.0
+offset_right = 821.0
+offset_bottom = 438.0
+text = "Hello world"
+script = ExtResource("1_0f027")
+
+[connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
