@@ -1,3 +1,4 @@
+import subprocess
 import zipfile
 import requests
 import os
@@ -19,7 +20,8 @@ def download_and_extract_latest_release(repo_owner, repo_name, download_dir=".")
     # Create the download directory if it doesn't exist
     if not os.path.exists(download_dir):
         os.makedirs(download_dir)
-
+    else:
+        return # We assue, py4godot was already downloaded
     # Get the latest release information using GitHub API
     url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
     headers = {"Accept": "application/vnd.github.v3+json"}
@@ -80,25 +82,45 @@ def download_and_extract_latest_release(repo_owner, repo_name, download_dir=".")
 
 
 def init_projects():
-    projects = ["dodge_the_creeps", "heightmap"]
+    projects = ["dodge_the_creeps", "heightmap", "button_demo"]
     for project in projects:
-        print((f"Coping py4godot into {project}..."))
+        print((f"Copying py4godot into {project}..."))
         copy_py4godot(project)
-        print("Installing packages for {project}...")
-        install_requirements()
+        print(f"Installing packages for {project}...")
+        install_requirements(project)
 
 
 def copy_py4godot(path):
     if (os.path.exists(path + "/addons")):
         os.makedirs(path + "/addons", exist_ok=True)
-    shutil.copytree(PY4GODOTPATH, path + "/addons")
+    shutil.copytree(PY4GODOTPATH, path + "/addons", dirs_exist_ok=True)
 
 def install_requirements(path):
+    if not os.path.exists(path + "/requirements.txt"):
+        print("No packages to install")
+        return
     if platform.system() == "Windows":
-        subprocess.run([f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-windows64/bin/python -m pip",
-                        "install", "-r", path + "/requirements.txt"])
+        run_command_and_print([f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-windows64/python/python.exe", f"{path}/addons/py4godot/get_pip.py"])
+
+        run_command_and_print([
+            f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-windows64/python/python.exe",
+            "-m", "pip", "install", "-r", f"{path}/requirements.txt"
+        ])
+    elif platform.system() == "Linux":
+        run_command_and_print([f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-linux64/python/bin/python3", f"{path}/addons/py4godot/get_pip.py"])
+        run_command_and_print([
+            f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-linux64/python/bin/python3",
+            "-m", "pip", "install", "-r", f"{path}/requirements.txt"])
+    elif platform.system() == "Darwin":
+        run_command_and_print([f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-darwin64/python/bin/python3", f"{path}/addons/py4godot/get_pip.py"])
+        run_command_and_print([
+            f"{path}/addons/py4godot/cpython-{PYTHON_VERSION}-darwin64/python/bin/python3",
+            "-m", "pip", "install", "-r", f"{path}/requirements.txt"])
 
 
+def run_command_and_print(cmd):
+    print("Running: " + " ".join(cmd))
+    subprocess.run(cmd)
 
 if __name__ == "__main__":
     # Set the repository details for py4godot
