@@ -7,7 +7,7 @@ If you want to see how NumPy can be used in Godot to create a simple heightmap, 
 ## Prerequisites
 
 - Python (Recommended version: 3.x)
-- Godot (Recommended version: 3.x or 4.x, based on plugin compatibility)
+- Godot (Recommended version: 4.4, based on plugin compatibility)
 - `py4godot` plugin
 
 # Installation
