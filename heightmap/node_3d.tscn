@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bvrh523nkoaku"]
 
-[ext_resource type="Script" path="res://height_map_creator.gd" id="2_tvmul"]
+[ext_resource type="Script" uid="uid://cuhrspsdkjqkc" path="res://height_map_creator.gd" id="2_tvmul"]
 [ext_resource type="Script" path="res://HeightMapGenerator.py" id="2_wv5uy"]
 
 [node name="Node3D" type="Node3D"]

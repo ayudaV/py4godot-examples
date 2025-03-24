@@ -1,11 +1,10 @@
 from py4godot import gdproperty, signal, private, gdclass, SignalArg
 
-from py4godot.classes.Image.Image import Image
-from py4godot.classes.Node3D.Node3D import Node3D
+from py4godot.classes.Image import Image
+from py4godot.classes.Node3D import Node3D
 import noise
 import numpy as np
 
-from py4godot.classes.Image.Image import Image as GDImage
 from py4godot.classes.core import Color
 
 def create_sinusoidal_heightmap(width:int, height:int) -> np.ndarray:
@@ -43,12 +42,21 @@ def create_perlin_heightmap(width:int, height:int) -> np.ndarray:
 	# Normalize to [0, 1] range
 	heightmap = (heightmap - np.min(heightmap)) / (np.max(heightmap) - np.min(heightmap))
 	return heightmap
-def create_for_godot_image(width:int,height:int,gd_heightmap:GDImage)->None:
+def create_for_godot_image(width:int,height:int,gd_heightmap:Image)->None:
 	heightmap = create_sinusoidal_heightmap(width, height)
 	for x in range(width):
 		for y in range(height):
 			numpy_color = heightmap[x,y]
 			gd_heightmap.set_pixel(x,y, Color.new3(numpy_color, numpy_color, numpy_color))
+
+def create_heightmap(width:int,height:int)->Image:
+	image: Image = Image.create(width, height, true, Image.FORMAT_RGB8)
+	heightmap = create_sinusoidal_heightmap(width, height)
+	for x in range(width):
+		for y in range(height):
+			numpy_color = heightmap[x,y]
+			gd_heightmap.set_pixel(x,y, Color.new3(numpy_color, numpy_color, numpy_color))
+	return image
 
 @gdclass
 class HeightMapGenerator(Node3D):
