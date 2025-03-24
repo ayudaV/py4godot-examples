@@ -82,7 +82,7 @@ def download_and_extract_latest_release(repo_owner, repo_name, download_dir=".")
 
 
 def init_projects():
-    projects = ["dodge_the_creeps", "heightmap", "button_demo"]
+    projects = ["dodge_the_creeps", "heightmap", "button_demo", "python-class-instantiation"]
     for project in projects:
         print((f"Copying py4godot into {project}..."))
         copy_py4godot(project)
