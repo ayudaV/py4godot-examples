@@ -25,14 +25,14 @@ class CustomButton(Button):
 
 ##  Notes
 
-The _has_point method is currently required to make the button functional. Future updates will remove this necessity.
+- The _has_point method is currently required to make the button functional. Future updates will remove this necessity.
 
-The _on_pressed method prints Hello, world! when the button is clicked. You can also use _pressed as an alternative if you don't want to connect the pressed signal manually.
+- The _on_pressed method prints Hello, world! when the button is clicked. You can also use _pressed as an alternative if you don't want to connect the pressed signal manually.
 
 ## Future Improvements
 
-Removal of the _has_point requirement in later versions.
+- Removal of the _has_point requirement in later versions.
 
-Enhancements to button functionality and flexibility.
+- Enhancements to button functionality and flexibility.
 
-Feel free to modify and expand upon this script to fit your project's needs!
+- Feel free to modify and expand upon this script to fit your project's needs!
