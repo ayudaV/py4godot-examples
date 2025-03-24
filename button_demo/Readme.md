@@ -5,7 +5,7 @@ This demo showcases an example of a Python script integrated into a button using
 ## Script Overview
 
 Below is the Python script used in this demo:
-
+``` Python
 from py4godot.classes import gdclass
 from py4godot.classes.core import Vector2, Rect2
 from py4godot.classes.Button.Button import Button
@@ -22,7 +22,7 @@ class CustomButton(Button):
     # Alternatively, you can handle button presses like this:
     # def _pressed(self):
     #     print("Hello, world!")
-
+```
 ##  Notes
 
 - The _has_point method is currently required to make the button functional. Future updates will remove this necessity.
