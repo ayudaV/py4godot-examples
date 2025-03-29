@@ -1,6 +1,6 @@
 from py4godot.classes import gdclass
 from py4godot.classes.core import Vector2, Rect2
-from py4godot.classes.Button.Button import Button
+from py4godot.classes.Button import Button
 
 @gdclass
 class button(Button):
