@@ -5,6 +5,7 @@ import os
 import sys
 import shutil
 import platform
+import stat
 
 PY4GODOTPATH = "py4godot_latest/py4godot"
 PYTHON_VERSION = "3.12.4"
@@ -73,6 +74,21 @@ def download_and_extract_latest_release(repo_owner, repo_name, download_dir=".")
 
         print("Moving py4godot to right location...")
         shutil.move("py4godot_latest/py4godot/plugin/addons/py4godot", "py4godot_latest/py4godot")
+        if platform.system() == "Darwin":
+            # Get current permissions
+            file_path = f"py4godot_latest/py4godot/py4godot/cpython-{PYTHON_VERSION}-darwin64/python/bin/python3"
+            st = os.stat(file_path)
+
+            # Add executable permissions for the user, group, and others
+            os.chmod(file_path, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        elif platform.system() == "Linux":
+            # Get current permissions
+            file_path = f"py4godot_latest/py4godot/py4godot/cpython-{PYTHON_VERSION}-linux64/python/bin/python3"
+            st = os.stat(file_path)
+
+            # Add executable permissions for the user, group, and others
+            os.chmod(file_path, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
 
         print(f"Successfully downloaded and extracted all assets from release {release_tag}")
 

@@ -13,8 +13,20 @@ If you want to see how NumPy can be used in Godot to create a simple heightmap, 
 # Installation
 
 To set up the example projects, ensure you have Python installed. Then, run the following command in your terminal:
+## Windows
 
 ```bash
+python -m venv venv 
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+python setup_examples.py
+```
+
+## Linux or MacOs
+```bash
+python3 -m venv venv 
+source venv/bin/activate
+pip install -r requirements.txt
 python setup_examples.py
 ```
 
