@@ -229,26 +229,6 @@ func evaluate_image():
 	var img := get_viewport().get_texture().get_image()
 	var cropped_image := img.get_region(Rect2(drawing_area.position, drawing_area.size))
 
-	image_evaluator.evaluate_image(cropped_image)
-
-func save_picture(path: String) -> void:
-	
-	evaluate_image()
-	return
-	# Wait until the frame has finished before getting the texture.
-	await RenderingServer.frame_post_draw
-
-	var img := get_viewport().get_texture().get_image()
-	# Crop the image so we only have canvas area.
-	var cropped_image := img.get_region(Rect2(drawing_area.position, drawing_area.size))
-
-	# Save the image with the passed in path we got from the save dialog.
-	# File format is based on the extension given by the user in the save dialog.
-	if path.to_lower().ends_with(".png"):
-		cropped_image.save_png(path)
-	elif path.to_lower().ends_with(".webp"):
-		# `save_webp()` is lossless by default.
-		cropped_image.save_webp(path)
-	elif path.to_lower().ends_with(".jpg") or path.to_lower().ends_with(".jpeg"):
-		# JPEG is always a lossy format, so use the highest possible quality.
-		cropped_image.save_jpg(path, 1.0)
+	var number = image_evaluator.evaluate_image(cropped_image)
+	print("predicted:", number)
+	return number

@@ -58,9 +58,11 @@ class node_2d(Node2D):
 		pixels_list = inverted_img.tolist()
 
 		# Send to PyTorch evaluation
-		self.evaluate_with_pytorch(pixels_list)
+		return self.evaluate_with_pytorch(pixels_list)
 
 	def evaluate_with_pytorch(self, pixels):
-		model.evaluate_custom_image(pixels)
+		result = model.evaluate_custom_image(pixels)
+		print(f"result:{result}")
+		return result[0]
 		#return predicted_digit  # Return the prediction if needed
 				
