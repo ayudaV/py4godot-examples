@@ -1,4 +1,4 @@
-
+from py4godot.classes.Image import Image
 from py4godot.methods import private
 from py4godot.signals import signal, SignalArg
 from py4godot.classes import gdclass
@@ -19,28 +19,12 @@ class node_2d(Node2D):
 	import numpy as np
 	import cv2
 
-	def evaluate_image(self, image):
+	def evaluate_image(self, image:Image):
 		print(f"Original Image Size: {image.get_width()} x {image.get_height()}")
 
-
-		img_array = np.zeros((image.get_height(), image.get_width(), 1), dtype=np.uint8)
-
-		for y in range(image.get_height()):
-			for x in range(image.get_width()):
-				color = image.get_pixel(x, y)
-				val = color.to_rgba32()
-				# Assuming val contains your 32-bit RGBA value
-				r = (val >> 24) & 0xFF  # Extract red component
-				g = (val >> 16) & 0xFF  # Extract green component
-				b = (val >> 8) & 0xFF  # Extract blue component
-				a = val & 0xFF  # Extract alpha component
-
-				# Now r, g, b, and a contain the individual components
-				#print(f"Red: {r}, Green: {g}, Blue: {b}, Alpha: {a}")
-				normalized_val = (r +g +b) / 3
-				img_array[y][x] = normalized_val
-		print(img_array.shape)
-
+		array_from_data = np.frombuffer(image.get_data().get_memory_view(), dtype=np.uint8)
+		array_from_data_reshaped = array_from_data.reshape((-1,4))
+		img_array = array_from_data_reshaped[:, :3]
 		# **Step 1: Find the bounding box of the digit**
 		_, thresh = cv2.threshold(img_array, 50, 255, cv2.THRESH_BINARY_INV)  # Invert: Black background, white text
 		coords = cv2.findNonZero(thresh)  # Find all non-zero pixels

@@ -103,4 +103,17 @@ label_settings = SubResource("LabelSettings_36fnr")
 horizontal_alignment = 1
 
 [node name="Evaluator" type="Node2D" parent="."]
+_import_path = NodePath("")
+process_mode = 0
+process_physics_priority = 0
+physics_interpolation_mode = 0
+editor_description = ""
+modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+clip_children = 0
+visibility_layer = 1
+z_as_relative = true
+texture_filter = 0
+position = Vector2(0, 0)
+scale = Vector2(1, 1)
 script = ExtResource("4_36fnr")
