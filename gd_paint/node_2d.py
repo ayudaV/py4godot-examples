@@ -1,23 +1,13 @@
-from py4godot.classes.Image import Image
-from py4godot.methods import private
-from py4godot.signals import signal, SignalArg
-from py4godot.classes import gdclass
-from py4godot.classes.core import Vector3
-from py4godot.classes.Node2D import Node2D
-from py4godot.utils.print_tools import print_error
-import numpy as np
-import torch
-import torch.nn as nn
 import cv2
-import sys
-import io
 import model
+import numpy as np
+from py4godot.classes import gdclass
+from py4godot.classes.Image import Image
+from py4godot.classes.Node2D import Node2D
 
 
 @gdclass
 class node_2d(Node2D):
-	import numpy as np
-	import cv2
 
 	def evaluate_image(self, image:Image):
 		print(f"Original Image Size: {image.get_width()} x {image.get_height()}")
