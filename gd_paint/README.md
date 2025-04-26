@@ -1,3 +1,4 @@
+
 # GD Paint
 
 GD Paint is a simple image editor made using Godot and GDScript.
@@ -10,6 +11,6 @@ Renderer: Compatibility
 
 Check out this demo on the asset library: https://godotengine.org/asset-library/asset/2768
 
-## Screenshots
+## Demo
 
-![Screenshot](screenshots/gdpaint.png)
+https://github.com/user-attachments/assets/41f73572-bcfa-4a89-8372-dbcb1d856f66
