@@ -7,7 +7,7 @@ from py4godot.classes.Node2D import Node2D
 import matplotlib.pyplot as plt
 
 @gdclass
-class node_2d(Node2D):
+class evaluator(Node2D):
 
 	def evaluate_image(self, image: Image):
 		"""
