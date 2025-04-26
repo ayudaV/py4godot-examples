@@ -63,29 +63,16 @@ func _process(_delta: float) -> void:
 		# If the mouse is inside the canvas and the mouse is 1px away from the position of the mouse last _process call.
 		if check_if_mouse_is_inside_canvas():
 			if mouse_pos.distance_to(last_mouse_pos) >= 1:
-				# If we are in pencil or eraser mode, then we need to draw.
-				if brush_mode == BrushMode.PENCIL or brush_mode == BrushMode.ERASER:
-					# If undo has not been set, meaning we've started a new stroke, then store the size of the
-					# draw_elements_list so we can undo from this point in time.
-					if undo_set == false:
-						undo_set = true
-						undo_element_list_num = brush_data_list.size()
-					# Add the brush object to draw_elements_array.
-					add_brush(mouse_pos, brush_mode)
+				if undo_set == false:
+					undo_set = true
+					undo_element_list_num = brush_data_list.size()
+				# Add the brush object to draw_elements_array.
+				add_brush(mouse_pos, brush_mode)
 
 	else:
 		# We've finished our stroke, so we can set a new undo (if a new storke is made).
 		undo_set = false
 
-		# If the mouse is inside the canvas.
-		if check_if_mouse_is_inside_canvas():
-			# If we're using either the circle shape mode, or the rectangle shape mode, then
-			# add the brush object to draw_elements_array.
-			if brush_mode == BrushMode.CIRCLE_SHAPE or brush_mode == BrushMode.RECTANGLE_SHAPE:
-				add_brush(mouse_pos, brush_mode)
-				# We handle undo's differently than either pencil or eraser mode, so we need to set undo
-				# element_list_num to -2 so we can tell if we need to undo a shape. See undo_stroke for details.
-				undo_element_list_num = UNDO_MODE_SHAPE
 		# Since we've released the left mouse, we need to get a new mouse_click_start_pos next time
 		# is_mouse_button_pressed is true.
 		mouse_click_start_pos = Vector2.INF
@@ -149,40 +136,6 @@ func add_brush(mouse_pos: Vector2, type: BrushMode) -> void:
 	new_brush.brush_size = brush_size
 	new_brush.brush_color = brush_color
 
-	# If the new bursh is a rectangle shape, we need to calculate the top left corner of the rectangle and the
-	# bottom right corner of the rectangle.
-	if type == BrushMode.RECTANGLE_SHAPE:
-		var TL_pos := Vector2()
-		var BR_pos := Vector2()
-
-		# Figure out the left and right positions of the corners and assign them to the proper variable.
-		if mouse_pos.x < mouse_click_start_pos.x:
-			TL_pos.x = mouse_pos.x
-			BR_pos.x = mouse_click_start_pos.x
-		else:
-			TL_pos.x = mouse_click_start_pos.x
-			BR_pos.x = mouse_pos.x
-
-		# Figure out the top and bottom positions of the corners and assign them to the proper variable.
-		if mouse_pos.y < mouse_click_start_pos.y:
-			TL_pos.y = mouse_pos.y
-			BR_pos.y = mouse_click_start_pos.y
-		else:
-			TL_pos.y = mouse_click_start_pos.y
-			BR_pos.y = mouse_pos.y
-
-		# Assign the positions to the brush.
-		new_brush.brush_pos = TL_pos
-		new_brush.brush_shape_rect_pos_BR = BR_pos
-
-	# If the brush isa circle shape, then we need to calculate the radius of the circle.
-	if type == BrushMode.CIRCLE_SHAPE:
-		# Get the center point inbetween the mouse position and the position of the mouse when we clicked.
-		var center_pos := Vector2((mouse_pos.x + mouse_click_start_pos.x) / 2, (mouse_pos.y + mouse_click_start_pos.y) / 2)
-		# Assign the brush position to the center point, and calculate the radius of the circle using the distance from
-		# the center to the top/bottom positon of the mouse.
-		new_brush.brush_pos = center_pos
-		new_brush.brush_shape_circle_radius = center_pos.distance_to(Vector2(center_pos.x, mouse_pos.y))
 
 	# Add the brush and update/draw all of the brushes.
 	brush_data_list.append(new_brush)
@@ -203,25 +156,6 @@ func _draw() -> void:
 				# making the radius half of brush size (so the circle is brush size pixels in diameter).
 				elif brush.brush_shape == BrushShape.CIRCLE:
 					draw_circle(brush.brush_pos, brush.brush_size / 2, brush.brush_color)
-			BrushMode.ERASER:
-				# NOTE: this is a really cheap way of erasing that isn't really erasing!
-				# However, this gives similar results in a fairy simple way!
-
-				# Erasing works exactly the same was as pencil does for both the rectangle shape and the circle shape,
-				# but instead of using brush.brush_color, we instead use bg_color instead.
-				if brush.brush_shape == BrushShape.RECTANGLE:
-					var rect := Rect2(brush.brush_pos - Vector2(brush.brush_size / 2, brush.brush_size / 2), Vector2(brush.brush_size, brush.brush_size))
-					draw_rect(rect, bg_color)
-				elif brush.brush_shape == BrushShape.CIRCLE:
-					draw_circle(brush.brush_pos, brush.brush_size / 2, bg_color)
-			BrushMode.RECTANGLE_SHAPE:
-				# We make a Rect2 with the postion at the top left. To get the size we take the bottom right position
-				# and subtract the top left corner's position.
-				var rect := Rect2(brush.brush_pos, brush.brush_shape_rect_pos_BR - brush.brush_pos)
-				draw_rect(rect, brush.brush_color)
-			BrushMode.CIRCLE_SHAPE:
-				# We simply draw a circle using stored in brush.
-				draw_circle(brush.brush_pos, brush.brush_shape_circle_radius, brush.brush_color)
 
 
 func evaluate_image():
@@ -230,5 +164,4 @@ func evaluate_image():
 	var cropped_image := img.get_region(Rect2(drawing_area.position, drawing_area.size))
 
 	var number = image_evaluator.evaluate_image(cropped_image)
-	print("predicted:", number)
 	return number
