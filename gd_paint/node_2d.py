@@ -97,7 +97,6 @@ class node_2d(Node2D):
 		return self.evaluate_with_pytorch(processed_img)
 	def evaluate_with_pytorch(self, pixels):
 		result = model.evaluate_custom_image(pixels)
-		print(f"result:{result}")
 		return result[0]
 		#return predicted_digit  # Return the prediction if needed
 				

@@ -1,17 +1,5 @@
 extends Control
 
-# Enums for the various modes and brush shapes that can be applied.
-enum BrushMode {
-	PENCIL,
-	ERASER,
-	CIRCLE_SHAPE,
-	RECTANGLE_SHAPE,
-}
-
-enum BrushShape {
-	RECTANGLE,
-	CIRCLE,
-}
 
 # A constant for whether or not we're needing to undo a shape.
 const UNDO_MODE_SHAPE = -2
@@ -34,10 +22,8 @@ var undo_set := false
 var undo_element_list_num := -1
 
 # The current brush settings: The mode, size, color, and shape we have currently selected.
-var brush_mode := BrushMode.PENCIL
 var brush_size := 32
 var brush_color := Color.BLACK
-var brush_shape := BrushShape.CIRCLE
 
 # The color of the background. We need this for the eraser (see the how we handle the eraser
 # in the _draw function for more details).
@@ -67,7 +53,7 @@ func _process(_delta: float) -> void:
 					undo_set = true
 					undo_element_list_num = brush_data_list.size()
 				# Add the brush object to draw_elements_array.
-				add_brush(mouse_pos, brush_mode)
+				add_brush(mouse_pos)
 
 	else:
 		# We've finished our stroke, so we can set a new undo (if a new storke is made).
@@ -99,40 +85,26 @@ func undo_stroke() -> void:
 	if undo_element_list_num == UNDO_NONE:
 		return
 
-	# If we are undoing a shape, then we can just remove the latest brush.
-	if undo_element_list_num == UNDO_MODE_SHAPE:
-		if brush_data_list.size() > 0:
-			brush_data_list.remove_at(brush_data_list.size() - 1)
+	# Figure out how many elements/brushes we've added in the last stroke.
+	var elements_to_remove := brush_data_list.size() - undo_element_list_num
+	# Remove all of the elements we've added this in the last stroke.
+	for _elment_num in elements_to_remove:
+		brush_data_list.pop_back()
 
-		# Now that we've undone a shape, we cannot undo again until another stoke is added.
-		undo_element_list_num = UNDO_NONE
-		# NOTE: if we only had shape brushes, then we could remove the above line and could let the user
-		# undo until we have a empty element list.
-
-	# Otherwise we're removing a either a pencil stroke or a eraser stroke.
-	else:
-		# Figure out how many elements/brushes we've added in the last stroke.
-		var elements_to_remove := brush_data_list.size() - undo_element_list_num
-		# Remove all of the elements we've added this in the last stroke.
-		for _elment_num in elements_to_remove:
-			brush_data_list.pop_back()
-
-		# Now that we've undone a stoke, we cannot undo again until another stoke is added.
-		undo_element_list_num = UNDO_NONE
+	# Now that we've undone a stoke, we cannot undo again until another stoke is added.
+	undo_element_list_num = UNDO_NONE
 
 	# Redraw the brushes.
 	queue_redraw()
 
 
-func add_brush(mouse_pos: Vector2, type: BrushMode) -> void:
+func add_brush(mouse_pos: Vector2) -> void:
 	# Make new brush dictionary that will hold all of the data we need for the brush.
 	var new_brush := {}
 
 	# Populate the dictionary with values based on the global brush variables.
 	# We will override these as needed if the brush is a rectange or circle.
-	new_brush.brush_type = type
 	new_brush.brush_pos = mouse_pos
-	new_brush.brush_shape = brush_shape
 	new_brush.brush_size = brush_size
 	new_brush.brush_color = brush_color
 
@@ -144,18 +116,7 @@ func add_brush(mouse_pos: Vector2, type: BrushMode) -> void:
 
 func _draw() -> void:
 	for brush in brush_data_list:
-		match brush.brush_type:
-			BrushMode.PENCIL:
-				# If the brush shape is a rectangle, then we need to make a Rect2 so we can use draw_rect.
-				# Draw_rect draws a rectagle at the top left corner, using the scale for the size.
-				# So we offset the position by half of the brush size so the rectangle's center is at mouse position.
-				if brush.brush_shape == BrushShape.RECTANGLE:
-					var rect := Rect2(brush.brush_pos - Vector2(brush.brush_size / 2, brush.brush_size / 2), Vector2(brush.brush_size, brush.brush_size))
-					draw_rect(rect, brush.brush_color)
-				# If the brush shape is a circle, then we draw a circle at the mouse position,
-				# making the radius half of brush size (so the circle is brush size pixels in diameter).
-				elif brush.brush_shape == BrushShape.CIRCLE:
-					draw_circle(brush.brush_pos, brush.brush_size / 2, brush.brush_color)
+		draw_circle(brush.brush_pos, brush.brush_size / 2, brush.brush_color)
 
 
 func evaluate_image():

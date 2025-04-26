@@ -21,12 +21,8 @@ func button_pressed(button_name: String) -> void:
 	var tool_name := ""
 	var shape_name := ""
 
-	if button_name == "mode_pencil":
-		paint_control.brush_mode = paint_control.BrushMode.PENCIL
-		tool_name = "Pencil"
-
 	# If a opperation button is pressed
-	elif button_name == "clear_picture":
+	if button_name == "clear_picture":
 		clear()
 	elif button_name == "save_picture":
 		evaluate_number()
@@ -40,7 +36,6 @@ func clear():
 func evaluate_number():
 		var number = paint_control.evaluate_image()
 		$PredictedNumber.text = str(number);
-		print("number:", number)
 	
 
 func brush_color_changed(color: Color) -> void:
@@ -65,5 +60,3 @@ func _on_paint_control_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
 			evaluate_number()
-		elif event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:
-			print("Right mouse button was released")
