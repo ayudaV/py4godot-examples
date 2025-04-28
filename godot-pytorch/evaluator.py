@@ -1,10 +1,11 @@
 import cv2
-import model
 import numpy as np
+
+import model
 from py4godot.classes import gdclass
 from py4godot.classes.Image import Image
 from py4godot.classes.Node2D import Node2D
-import matplotlib.pyplot as plt
+
 
 @gdclass
 class evaluator(Node2D):
@@ -20,17 +21,12 @@ class evaluator(Node2D):
 		Returns:
 			The evaluation result from PyTorch model
 		"""
-		# Get image dimensions
-		width = image.get_width()
-		height = image.get_height()
-		print(f"Original Image Size: {width} x {height}")
-		
 		# Extract image data safely
 		data = image.get_data()
 		array_from_data = np.frombuffer(data.get_memory_view(), dtype=np.uint8)
 		
 		# Reshape data properly to get correct image representation
-		array_from_data_reshaped = array_from_data.reshape((height, width, 4))
+		array_from_data_reshaped = array_from_data.reshape((image.get_height(), image.get_width(), 4))
 		img_array = array_from_data_reshaped[:, :, :3]  # Extract RGB channels
 		
 		# Convert to grayscale
@@ -46,14 +42,7 @@ class evaluator(Node2D):
 			return None
 		
 		x, y, w, h = cv2.boundingRect(coords)
-		
-		# Option 1: Use the full original image, just resized to 28x28
-		# This preserves aspect ratio but might make digits too small
-		resized_full = cv2.resize(grayscale_array, (28, 28), interpolation=cv2.INTER_AREA)
-		
-		# Option 2: Center the digit in a square canvas with significant padding
-		# This approach keeps more context while ensuring the digit is centered
-		
+
 		# Find the center of the digit
 		center_x = x + w // 2
 		center_y = y + h // 2
@@ -66,8 +55,8 @@ class evaluator(Node2D):
 		half_size = square_size // 2
 		square_x1 = max(0, center_x - half_size)
 		square_y1 = max(0, center_y - half_size)
-		square_x2 = min(width, center_x + half_size)
-		square_y2 = min(height, center_y + half_size)
+		square_x2 = min(image.get_width(), center_x + half_size)
+		square_y2 = min(image.get_height(), center_y + half_size)
 		
 		# Extract the square region
 		square_region = grayscale_array[square_y1:square_y2, square_x1:square_x2]
@@ -86,17 +75,10 @@ class evaluator(Node2D):
 		
 		# Invert image (ensure white digit on black background for MNIST compatibility)
 		inverted_img = 255 - resized_img
-		
-		# Optional: Apply slight Gaussian blur to reduce noise (can help some models)
-		# blurred_img = cv2.GaussianBlur(inverted_img, (3, 3), 0)
-		
+
 		# Convert to format expected by PyTorch model
-		processed_img = inverted_img.reshape(28, 28).tolist()
-		
-		# Send to PyTorch evaluation
-		return self.evaluate_with_pytorch(processed_img)
-	def evaluate_with_pytorch(self, pixels):
-		result = model.evaluate_custom_image(pixels)
-		return result[0]
-		#return predicted_digit  # Return the prediction if needed
-				
+		processed_img = np.array(inverted_img.reshape(28, 28), dtype=np.float32)
+
+		results = model.evaluate_custom_image(processed_img)
+		return results[0]
+

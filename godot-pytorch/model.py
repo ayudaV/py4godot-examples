@@ -1,23 +1,10 @@
-import torch
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torchvision import transforms
+
 import os
-import sys
-
-class StderrRedirector:
-	def write(self, message = ""):
-		# Replace this with logging or printing inside Godot if needed
-		if message:
-			print_error(f"[Captured stderr]: {message}", end="")
-	@staticmethod
-	def flush():
-		pass  # Required for compatibility
-
-sys.stderr = StderrRedirector
 
 # Set random seed for reproducibility
 torch.manual_seed(42)
@@ -75,30 +62,16 @@ class MNISTNet(nn.Module):
 
 		return F.log_softmax(x, dim=1)
 # Function to load model
-def load_model(model, optimizer=None, filepath=None):
+def load_model(model, filepath=None):
 	if filepath is None:
 		filepath = os.path.join(MODEL_SAVE_PATH, "mnist_cnn_best.pt")
-
-	if not os.path.exists(filepath):
-		print(f"No saved model found at {filepath}")
-		return model, optimizer, 0, 0
-
 	# Load checkpoint
-	checkpoint = torch.load(filepath)
+	model_save = torch.load(filepath)
 
 	# Load model state
-	model.load_state_dict(checkpoint['model_state_dict'])
+	model.load_state_dict(model_save['model_state_dict'])
 
-	# Load optimizer state if provided
-	if optimizer is not None and 'optimizer_state_dict' in checkpoint:
-		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-	# Get metadata
-	epoch = checkpoint.get('epoch', 0)
-	accuracy = checkpoint.get('accuracy', 0)
-
-	print(f"Loaded model from {filepath} (Epoch: {epoch}, Accuracy: {accuracy:.2f}%)")
-	return model, optimizer, epoch, accuracy
+	return model
 
 # Function to use a trained model for prediction
 def predict_digit(model, image_tensor):
@@ -122,7 +95,7 @@ def predict_digit(model, image_tensor):
 
 def preprocess_image(image_array):
 	"""
-	Convert a heightxwidth list into a PyTorch tensor with the expected format.
+	Convert a height x width list into a PyTorch tensor with the expected format.
 	"""
 	# Convert list to numpy array if needed
 	if isinstance(image_array, list):
@@ -147,11 +120,10 @@ def evaluate_custom_image(image_array):
 	"""
 	# Load model
 	model = MNISTNet().to(DEVICE)
-	model, _, _, _ = load_model(model)
+	model = load_model(model)
 
 	model.eval()  # Set model to evaluation mode
 	image = preprocess_image(image_array)
-	print(image.shape)
 
 	with torch.no_grad():
 		output = model(image)
