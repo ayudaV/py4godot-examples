@@ -73,7 +73,7 @@ def download_and_extract_latest_release(repo_owner, repo_name, download_dir=".")
             print(f"Successfully extracted {zip_path}")
 
         print("Moving py4godot to right location...")
-        shutil.move("py4godot_latest/py4godot/plugin/addons/py4godot", "py4godot_latest/py4godot")
+        shutil.move("py4godot_latest/py4godot/install_dir/addons/py4godot", "py4godot_latest/py4godot")
         if platform.system() == "Darwin":
             # Get current permissions
             file_path = f"py4godot_latest/py4godot/py4godot/cpython-{PYTHON_VERSION}-darwin64/python/bin/python3"
