@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bvrh523nkoaku"]
 
-[ext_resource type="Script" uid="uid://cuhrspsdkjqkc" path="res://height_map_creator.gd" id="2_tvmul"]
+[ext_resource type="Script" uid="uid://c38ml0aprjikf" path="res://height_map_creator.gd" id="2_tvmul"]
 [ext_resource type="Script" path="res://HeightMapGenerator.py" id="2_wv5uy"]
 
 [node name="Node3D" type="Node3D"]
@@ -10,8 +10,21 @@ script = 0
 script = ExtResource("2_tvmul")
 
 [node name="Generator" type="Node3D" parent="HeightMapCreator"]
+_import_path = NodePath("")
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 0
+auto_translate_mode = 0
 editor_description = "jfejkkj fjkjak fjkkjl alkjkl fjklejklfjlkejkl kjlsjklfjkl431"
 transform = Transform3D(1, 0, 0, 0, 0.507812, 0, 0, 0, 1, 1.8019, 1.19343, 2.70217)
+rotation_edit_mode = 0
+rotation_order = 2
+top_level = false
+visible = true
+visibility_parent = NodePath("")
 script = ExtResource("2_wv5uy")
 
 [node name="Camera3D" type="Camera3D" parent="."]

@@ -1,0 +1,108 @@
+[gd_scene load_steps=8 format=3 uid="uid://bhjmyer4wlwy2"]
+
+[ext_resource type="Script" uid="uid://c3qox3onxh0we" path="res://paint_control.gd" id="1"]
+[ext_resource type="Script" uid="uid://bu3w4m4lffwrc" path="res://tools_panel.gd" id="2"]
+[ext_resource type="Script" path="res://evaluator.py" id="4_36fnr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ksjc"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_npkcn"]
+bg_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_3fcrl"]
+font_size = 29
+
+[sub_resource type="LabelSettings" id="LabelSettings_36fnr"]
+font_size = 200
+
+[node name="PaintRoot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DrawingAreaBG" type="Panel" parent="."]
+layout_mode = 0
+anchor_left = 0.342
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -0.208008
+offset_right = -246.224
+offset_bottom = -136.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_4ksjc")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="PaintControl" type="Control" parent="."]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = false
+
+[node name="ToolsPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 350.0
+offset_bottom = 600.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_npkcn")
+script = ExtResource("2")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="ButtonUndo" type="Button" parent="ToolsPanel"]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 463.0
+offset_right = 339.0
+offset_bottom = 498.0
+text = "Undo last stroke"
+metadata/_edit_layout_mode = 0
+metadata/_edit_use_custom_anchors = false
+
+[node name="ButtonSave" type="Button" parent="ToolsPanel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 506.0
+offset_right = 340.0
+offset_bottom = 541.0
+text = "Evaluate"
+metadata/_edit_layout_mode = 0
+metadata/_edit_use_custom_anchors = false
+
+[node name="ButtonClear" type="Button" parent="ToolsPanel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 550.0
+offset_right = 340.0
+offset_bottom = 585.0
+text = "Clear picture"
+metadata/_edit_layout_mode = 0
+metadata/_edit_use_custom_anchors = false
+
+[node name="Predicted Text" type="Label" parent="ToolsPanel"]
+layout_mode = 0
+offset_right = 348.0
+offset_bottom = 50.0
+text = "Predicted Number:"
+label_settings = SubResource("LabelSettings_3fcrl")
+horizontal_alignment = 1
+
+[node name="PredictedNumber" type="Label" parent="ToolsPanel"]
+layout_mode = 0
+offset_top = 48.0
+offset_right = 348.0
+offset_bottom = 299.0
+label_settings = SubResource("LabelSettings_36fnr")
+horizontal_alignment = 1
+
+[node name="Evaluator" type="Node2D" parent="."]
+script = ExtResource("4_36fnr")
+
+[connection signal="gui_input" from="PaintControl" to="ToolsPanel" method="_on_paint_control_gui_input"]
