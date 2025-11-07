@@ -1,148 +1,116 @@
-[gd_scene load_steps=10 format=3 uid="uid://dq8p7746jxhqb"]
+[gd_scene load_steps=4 format=3 uid="uid://dq8p7746jxhqb"]
 
 [ext_resource type="PackedScene" uid="uid://b7e7tacpa4co6" path="res://handtrack/ht_webcam.tscn" id="1_pmcx6"]
-[ext_resource type="PackedScene" uid="uid://cosgj5pmr2m8i" path="res://webcam/webcam.tscn" id="2_rnicy"]
+[ext_resource type="Script" uid="uid://cefcd5fgkswmk" path="res://ui/rich_text_label.gd" id="3_3ll31"]
 [ext_resource type="Script" uid="uid://bfydg20gar3iu" path="res://ui/distance_generator.gd" id="3_rnicy"]
-[ext_resource type="Script" uid="uid://ccl0nfjkqvonb" path="res://ui/buttons.gd" id="4_1qd75"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1qd75"]
-bg_color = Color(7.5084e-06, 0.649876, 0.894004, 1)
-
-[sub_resource type="Theme" id="Theme_cyq2i"]
-Button/colors/font_hover_pressed_color = Color(2.88785e-07, 0.574888, 0.834952, 1)
-Button/colors/font_pressed_color = Color(0.230295, 0.481701, 0.768273, 1)
-Button/colors/icon_hover_pressed_color = Color(0.113274, 0.699163, 0.945558, 1)
-Button/styles/pressed = SubResource("StyleBoxFlat_1qd75")
-
-[sub_resource type="Theme" id="Theme_3f5yb"]
-Button/colors/font_hover_pressed_color = Color(2.88785e-07, 0.574888, 0.834952, 1)
-Button/colors/font_pressed_color = Color(0.230295, 0.481701, 0.768273, 1)
-Button/colors/icon_hover_pressed_color = Color(0.113274, 0.699163, 0.945558, 1)
-Button/styles/pressed = SubResource("StyleBoxFlat_1qd75")
-
-[sub_resource type="Theme" id="Theme_cxvxm"]
-Button/colors/font_hover_pressed_color = Color(2.88785e-07, 0.574888, 0.834952, 1)
-Button/colors/font_pressed_color = Color(0.230295, 0.481701, 0.768273, 1)
-Button/colors/icon_hover_pressed_color = Color(0.113274, 0.699163, 0.945558, 1)
-Button/styles/pressed = SubResource("StyleBoxFlat_1qd75")
-
-[sub_resource type="Theme" id="Theme_x4dsd"]
-Button/colors/font_hover_pressed_color = Color(2.88785e-07, 0.574888, 0.834952, 1)
-Button/colors/font_pressed_color = Color(0.230295, 0.481701, 0.768273, 1)
-Button/colors/icon_hover_pressed_color = Color(0.113274, 0.699163, 0.945558, 1)
-Button/styles/pressed = SubResource("StyleBoxFlat_1qd75")
 
 [node name="Dashboard" type="CanvasLayer"]
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
+[node name="Left" type="VBoxContainer" parent="."]
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -324.0
+offset_right = 200.0
+offset_bottom = 324.0
 grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-alignment = 1
-
-[node name="HandTrackWebcam" parent="HBoxContainer/VBoxContainer" instance=ExtResource("1_pmcx6")]
-layout_mode = 2
-expand_mode = 5
-
-[node name="Webcam" parent="HBoxContainer/VBoxContainer" instance=ExtResource("2_rnicy")]
-layout_mode = 2
-expand_mode = 5
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
+size_flags_horizontal = 0
 theme_override_constants/separation = 5
+alignment = 1
 script = ExtResource("3_rnicy")
+side = "LEFT"
 
-[node name="Calibrate" type="Button" parent="HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-text = "Calibrate"
-
-[node name="Right" type="Label" parent="HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-text = "Right Hand"
-
-[node name="RIndex" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-min_value = 1.8
-max_value = 2.3
-value = 1.8
-
-[node name="RMiddle" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-min_value = 1.8
-max_value = 2.3
-value = 1.8
-
-[node name="RRing" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-min_value = 1.8
-max_value = 2.3
-value = 1.8
-
-[node name="RPinky" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-min_value = 1.8
-max_value = 2.3
-value = 1.8
-
-[node name="Left" type="Label" parent="HBoxContainer/VBoxContainer2"]
+[node name="Title" type="Label" parent="Left"]
 layout_mode = 2
 text = "Left Hand"
 
-[node name="LIndex" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
+[node name="Index" type="ProgressBar" parent="Left"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="LMiddle" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
+[node name="Middle" type="ProgressBar" parent="Left"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="LRing" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
+[node name="Ring" type="ProgressBar" parent="Left"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="LPinky" type="ProgressBar" parent="HBoxContainer/VBoxContainer2"]
+[node name="Pinky" type="ProgressBar" parent="Left"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="VBoxContainer3" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer3"]
-layout_mode = 2
-theme_override_constants/separation = 10
+[node name="Right" type="VBoxContainer" parent="."]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -324.0
+offset_bottom = 324.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 5
 alignment = 1
-script = ExtResource("4_1qd75")
+script = ExtResource("3_rnicy")
+side = "RIGHT"
 
-[node name="LTrack" type="Button" parent="HBoxContainer/VBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(50, 50)
+[node name="Title" type="Label" parent="Right"]
 layout_mode = 2
-theme = SubResource("Theme_cyq2i")
-theme_override_colors/icon_pressed_color = Color(0.543525, 0.815515, 0.968136, 1)
+text = "Right Hand"
 
-[node name="MLTrack" type="Button" parent="HBoxContainer/VBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(50, 50)
+[node name="Index" type="ProgressBar" parent="Right"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-theme = SubResource("Theme_3f5yb")
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="MRTrack" type="Button" parent="HBoxContainer/VBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(50, 50)
+[node name="Middle" type="ProgressBar" parent="Right"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-theme = SubResource("Theme_cxvxm")
+min_value = 1.8
+max_value = 2.3
+value = 1.8
 
-[node name="RTrack" type="Button" parent="HBoxContainer/VBoxContainer3/HBoxContainer"]
-custom_minimum_size = Vector2(50, 50)
+[node name="Ring" type="ProgressBar" parent="Right"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-theme = SubResource("Theme_x4dsd")
+min_value = 1.8
+max_value = 2.3
+value = 1.8
+
+[node name="Pinky" type="ProgressBar" parent="Right"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+min_value = 1.8
+max_value = 2.3
+value = 1.8
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+offset_right = 197.0
+offset_bottom = 101.0
+script = ExtResource("3_3ll31")
+
+[node name="HandTrackWebcam" parent="." instance=ExtResource("1_pmcx6")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_bottom = 0.0
+offset_left = -300.0
+offset_bottom = 1.17188
+grow_horizontal = 0
+grow_vertical = 1
+expand_mode = 5

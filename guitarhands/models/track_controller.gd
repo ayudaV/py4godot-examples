@@ -4,7 +4,10 @@ extends Node3D
 
 var bodies = []
 
+var dict = {"LTrack": KEY_H, "MLTrack":KEY_U, "MRTrack":KEY_I, "RTrack": KEY_L}
+
 func _input(event: InputEvent) -> void:
+	print(event)
 	if event.is_action_pressed(key):
 		if len(bodies) > 0:
 			var body:CharacterBody3D = bodies[0]

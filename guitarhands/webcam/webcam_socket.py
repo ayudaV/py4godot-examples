@@ -159,7 +159,7 @@ class webcam_socket(Node):
 				mapped_handmarks = {HandLandmark(i).name: hand_landmarks.landmark[i] for i in range(21)}
 				left_distance = np.linalg.norm(np.array([lw.x, lw.y]) - np.array([hand_landmarks.landmark[0].x, hand_landmarks.landmark[0].y]))
 				right_distance = np.linalg.norm(np.array([rw.x, rw.y]) - np.array([hand_landmarks.landmark[0].x, hand_landmarks.landmark[0].y]))
-				if left_distance < right_distance:
+				if left_distance > right_distance: #Inverted because of image inverted
 					self._last_hand_landmarks["LEFT_HAND"] = mapped_handmarks
 				else:
 					self._last_hand_landmarks["RIGHT_HAND"] = mapped_handmarks
