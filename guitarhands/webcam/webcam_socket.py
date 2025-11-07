@@ -1,11 +1,16 @@
 from py4godot.classes import gdclass
 from py4godot.classes.Image import Image
 from py4godot.classes.ImageTexture import ImageTexture
-from py4godot.classes.core import Array, PackedByteArray
+from py4godot.classes.core import Array, PackedByteArray, Vector3
 from py4godot.classes.Node import Node
+from py4godot.classes.core import Dictionary
 import cv2
 import mediapipe as mp
 import numpy as np
+from mediapipe.python.solutions.hands import Hands, HandLandmark
+from mediapipe.python.solutions import drawing_utils
+from mediapipe.python.solutions.pose import Pose, PoseLandmark, POSE_CONNECTIONS
+from mediapipe.python.solutions.hands_connections import HAND_CONNECTIONS
 
 FORMAT_RGB8 = 4
 
@@ -18,23 +23,19 @@ class webcam_socket(Node):
 		if not self.cap.isOpened():
 			print(f"Error: cannot open camera index {self.camera_index}")
 		# Initialize MediaPipe Hands once to avoid per-frame setup cost
-		self._mp_hands = mp.solutions.hands
-		self._mp_draw = mp.solutions.drawing_utils
-		self._hands = self._mp_hands.Hands(
+		self._hands = Hands(
 			model_complexity=1,
 			min_detection_confidence=0.5,
 			min_tracking_confidence=0.5,
 		)
 		# Initialize MediaPipe Pose to infer handedness from wrist positions
-		self._mp_pose = mp.solutions.pose
-		self._pose = self._mp_pose.Pose(
+		self._pose = Pose(
 			model_complexity=1,
 			min_detection_confidence=0.5,
 			min_tracking_confidence=0.5,
 		)
-		# Storage for last computed hand labels via pose ('Left'/'Right')
-		self._last_hand_labels = []
-		self._last_hand_landmarks = []
+		# Storage for last computed hand landmarks
+		self._last_hand_landmarks = {}
 
 	def get_frame(self) -> np.ndarray:
 		if not self.cap.isOpened():
@@ -58,12 +59,70 @@ class webcam_socket(Node):
 		# Convert BGR (OpenCV) to RGB (Godot expects RGB pixel data)
 		frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		height, width = frame_rgb.shape[:2]
+		frame_rgb = cv2.flip(frame_rgb, 1)
 		frame_rgb = np.ascontiguousarray(frame_rgb, dtype=np.uint8)
 		pba = PackedByteArray.from_memory_view(memoryview(frame_rgb))
 		# Create image from raw RGB8 pixel data
 		_image = Image.create_from_data(width, height, False, FORMAT_RGB8, pba)
 		img_texture = ImageTexture.create_from_image(_image)
 		return img_texture
+
+	def get_last_hand_landmarks_godot(self) -> Dictionary:
+		"""
+		Return the last computed hand landmarks as a Godot Dictionary.
+		Structure:
+		{
+			"LEFT_HAND": {"WRIST": Vector3(x, y, z), ...},
+			"RIGHT_HAND": { ... }
+		}
+		- Coordinates are normalized (MediaPipe range 0..1 for x/y; z is relative depth).
+		- Python dict and Vector3 are automatically marshalled to Godot Dictionary/Vector3.
+		"""
+		result = Dictionary.new0()
+		for side, lm_map in self._last_hand_landmarks.items():
+			inner = Dictionary.new0()
+			for name, lm in lm_map.items():
+				inner.get_or_add(name, Vector3.new3(lm.x, lm.y, lm.z))
+			result.get_or_add(side, inner)
+		return result
+
+	def get_landmark_distance(self, name_a: str, name_b: str, side: str = "") -> float:
+		"""
+		Return the Euclidean 3D distance between two hand landmarks from the last processed frame.
+		- name_a, name_b: MediaPipe HandLandmark names (e.g., "WRIST", "INDEX_FINGER_TIP").
+		- side: optional hand selector; accepts "LEFT_HAND"/"RIGHT_HAND" or short forms like "left"/"right".
+		  If omitted, the first hand that contains both landmarks is used.
+		- Returns -1.0 when data is unavailable or landmarks are missing.
+		"""
+		if not getattr(self, "_last_hand_landmarks", None):
+			return -1.0
+
+		key_a = str(name_a).upper()
+		key_b = str(name_b).upper()
+
+		hand_key = None
+		if side:
+			s = str(side).lower()
+			hand_key = "LEFT_HAND" if s.startswith("l") else ("RIGHT_HAND" if s.startswith("r") else None)
+
+		# Build candidate hands to check
+		candidates = []
+		if hand_key and hand_key in self._last_hand_landmarks:
+			candidates = [hand_key]
+		else:
+			candidates = list(self._last_hand_landmarks.keys())
+
+		for hk in candidates:
+			lm_map = self._last_hand_landmarks.get(hk, {})
+			if key_a in lm_map and key_b in lm_map:
+				lm1 = lm_map[key_a]
+				lm2 = lm_map[key_b]
+				dx = lm1.x - lm2.x
+				dy = lm1.y - lm2.y
+				dz = lm1.z - lm2.z
+				return float((dx * dx + dy * dy + dz * dz) ** 0.5)
+
+		return -1.0
 
 	def get_handtracked_image(self) -> ImageTexture:
 		"""
@@ -86,59 +145,47 @@ class webcam_socket(Node):
 		image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		image_rgb = cv2.flip(image_rgb, 1)
 		image_rgb.flags.writeable = False
-		results = self._hands.process(image_rgb)
-		image_rgb.flags.writeable = True
-
-		# Also run pose on the same flipped RGB image to get wrist reference points
+		hand_res = self._hands.process(image_rgb)
 		pose_res = self._pose.process(image_rgb)
-
+		image_rgb.flags.writeable = True
 		# Determine hand labels ('Left'/'Right') by nearest pose wrist
-		self._last_hand_labels = []
-		left_wrist_xy = None
-		right_wrist_xy = None
-		if pose_res and getattr(pose_res, 'pose_landmarks', None):
-			try:
-				lw = pose_res.pose_landmarks.landmark[self._mp_pose.PoseLandmark.LEFT_WRIST.value]
-				left_wrist_xy = (lw.x, lw.y)
-			except Exception:
-				left_wrist_xy = None
-			try:
-				rw = pose_res.pose_landmarks.landmark[self._mp_pose.PoseLandmark.RIGHT_WRIST.value]
-				right_wrist_xy = (rw.x, rw.y)
-			except Exception:
-				right_wrist_xy = None
+
+
+		if pose_res and getattr(pose_res, 'pose_landmarks', None) and hand_res and getattr(hand_res, 'multi_hand_landmarks', None):
+			lw = pose_res.pose_landmarks.landmark[PoseLandmark.LEFT_WRIST.value]
+			rw = pose_res.pose_landmarks.landmark[PoseLandmark.RIGHT_WRIST.value]
+			for hand_landmarks in hand_res.multi_hand_landmarks:
+				# Determine hand labels ('Left'/'Right') by nearest pose wrist
+				mapped_handmarks = {HandLandmark(i).name: hand_landmarks.landmark[i] for i in range(21)}
+				left_distance = np.linalg.norm(np.array([lw.x, lw.y]) - np.array([hand_landmarks.landmark[0].x, hand_landmarks.landmark[0].y]))
+				right_distance = np.linalg.norm(np.array([rw.x, rw.y]) - np.array([hand_landmarks.landmark[0].x, hand_landmarks.landmark[0].y]))
+				if left_distance < right_distance:
+					self._last_hand_landmarks["LEFT_HAND"] = mapped_handmarks
+				else:
+					self._last_hand_landmarks["RIGHT_HAND"] = mapped_handmarks
 
 		# Convert back to BGR for drawing
 		image_bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
 
-		# Draw landmarks and compute labels
-		self._last_hand_landmarks = []
-		if results and results.multi_hand_landmarks:
-			for hand_landmarks in results.multi_hand_landmarks:
-				self._mp_draw.draw_landmarks(
+		# Draw pose landmarks and connections on the image if available
+		if pose_res and getattr(pose_res, 'pose_landmarks', None):
+			try:
+				drawing_utils.draw_landmarks(
+					image_bgr,
+					pose_res.pose_landmarks,
+					POSE_CONNECTIONS,
+				)
+			except Exception:
+				pass
+
+		# Draw hand landmarks and connections on the image if available
+		if hand_res and getattr(hand_res, 'multi_hand_landmarks', None):
+			for hand_landmarks in hand_res.multi_hand_landmarks:
+				drawing_utils.draw_landmarks(
 					image_bgr,
 					hand_landmarks,
-					self._mp_hands.HAND_CONNECTIONS,
+					HAND_CONNECTIONS,
 				)
-				# Compute nearest pose wrist for this hand to label Left/Right
-				try:
-					hw = hand_landmarks.landmark[self._mp_hands.HandLandmark.WRIST.value]
-					hw_xy = (hw.x, hw.y)
-					# Compare squared distances to avoid sqrt
-					d_left = None if left_wrist_xy is None else (hw_xy[0]-left_wrist_xy[0])**2 + (hw_xy[1]-left_wrist_xy[1])**2
-					d_right = None if right_wrist_xy is None else (hw_xy[0]-right_wrist_xy[0])**2 + (hw_xy[1]-right_wrist_xy[1])**2
-					label = 'Unknown'
-					if d_left is not None and d_right is not None:
-						label = 'Left' if d_left <= d_right else 'Right'
-					elif d_left is not None:
-						label = 'Left'
-					elif d_right is not None:
-						label = 'Right'
-					self._last_hand_labels.append(label)
-				except Exception:
-					self._last_hand_labels.append('Unknown')
-				# Keep a copy of landmarks in the same order as labels
-				self._last_hand_landmarks.append(hand_landmarks)
 
 		# Convert to RGB for Godot and build ImageTexture
 		frame_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
@@ -148,63 +195,3 @@ class webcam_socket(Node):
 		_image = Image.create_from_data(width, height, False, FORMAT_RGB8, pba)
 		img_texture = ImageTexture.create_from_image(_image)
 		return img_texture
-
-	def get_hands_points_struct(self):
-		"""
-		Return a structure grouping landmarks by LEFT_HAND / RIGHT_HAND using the provided
-		landmark names list. Each hand maps point name -> [x, y, z]. Example:
-		{
-			"LEFT_HAND": {"WRIST": [x,y,z], "THUMB_CMC": [x,y,z], ...},
-			"RIGHT_HAND": { ... }
-		}
-		Only present keys for detected hands.
-		"""
-		# Names by index as provided
-		point_names = [
-			"WRIST",
-			"THUMB_CMC",
-			"THUMB_MCP",
-			"THUMB_IP",
-			"THUMB_TIP",
-			"INDEX_FINGER_MCP",
-			"INDEX_FINGER_PIP",
-			"INDEX_FINGER_DIP",
-			"INDEX_FINGER_TIP",
-			"MIDDLE FINGER_MCP",
-			"MIDDLE_FINGER_PIP",
-			"MIDDLE FINGER_DIP",
-			"MIDDLE FINGER_TIP",
-			"RING FINGER_MCP",
-			"RING FINGER_PIP",
-			"RING FINGER_DIP",
-			"RING FINGER_TIP",
-			"PINKY_MCP",
-			"PINKY_PIP",
-			"PINKY_DIP",
-			"PINKY_TIP",
-		]
-
-		result = {}
-		labels = self._last_hand_labels or []
-		hands = self._last_hand_landmarks or []
-		for idx, hand_landmarks in enumerate(hands):
-			label = 'Unknown'
-			if idx < len(labels):
-				label = labels[idx]
-			key = 'LEFT_HAND' if label == 'Left' else ('RIGHT_HAND' if label == 'Right' else 'UNKNOWN_HAND')
-			points_map = {}
-			# 21 landmarks expected
-			for i in range(min(21, len(hand_landmarks.landmark))):
-				name = point_names[i] if i < len(point_names) else str(i)
-				lm = hand_landmarks.landmark[i]
-				points_map[name] = [lm.x, lm.y, lm.z]
-			result[key] = points_map
-
-		return result
-
-	def get_hand_labels(self):
-		"""
-		Return a list of labels (strings) for the last-detected hands in order: ['Left', 'Right', ...].
-		Labels are computed by comparing each hand's WRIST landmark to pose wrists.
-		"""
-		return self._last_hand_labels

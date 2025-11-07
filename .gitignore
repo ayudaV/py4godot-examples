@@ -3,3 +3,4 @@ dodge_the_creeps/
 /py4godot_latest
 /venv/
 __pycache__/
+.env

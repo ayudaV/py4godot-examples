@@ -1,0 +1,9 @@
+{
+  "python.defaultInterpreterPath": "C:/Users/terad/Github/py4godot-examples/venv/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/guitarhands/addons/py4godot",
+    "${workspaceFolder}/guitarhands/addons/py4godot/cpython-3.12.4-windows64/python/Lib/site-packages",
+    "${workspaceFolder}/py4godot_latest/py4godot"
+  ],
+  "python.envFile": "${workspaceFolder}/.env"
+}
